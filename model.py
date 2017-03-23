@@ -21,11 +21,22 @@ X_train = center_images
 Y_train = steering_angles
 
 from keras.models import Sequential
-from keras.layers import Deconv2D, Dense, Flatten, Lambda
+from keras.layers import Conv2D, Dense, Flatten, Lambda, Activation, pooling, PReLU
 
 model = Sequential()
 model.add(Lambda(lambda x: (x/255.0 - 0.5),input_shape=(160,320,3)))
+
+model.add(Conv2D(6,5,5))
+model.add(PReLU())
+model.add(pooling.MaxPool2D())
+
+model.add(Conv2D(6,5,5))
+model.add(PReLU())
+model.add(pooling.MaxPool2D())
+
 model.add(Flatten())
+model.add(Dense(120))
+model.add(Dense(84))
 model.add(Dense(1))
 
 model.compile(loss='mse',optimizer='adam')

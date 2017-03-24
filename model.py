@@ -5,7 +5,7 @@ Created on Wed Mar 22 15:18:00 2017
 @author: lochappy
 """
 
-import csv, cv2, h5py
+import csv, cv2, h5py, sklearn
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Conv2D, Dense, Flatten, Lambda, Activation, pooling, PReLU, Cropping2D, Dropout
@@ -87,22 +87,15 @@ with open(dataFolder + '/driving_log.csv') as f:
 from random import shuffle
 shuffle(dataAnn)
 
+
 center_images = np.array([cv2.imread(line[0]) for line in dataAnn],dtype=np.float32)
 steering_angles = np.array([float(line[3]) for line in dataAnn],dtype=np.float32)
 
 flipped_center_images = np.array([np.fliplr(img)for img in center_images],dtype=np.float32)
 flipped_steering_angles = -steering_angles
 
-#import matplotlib.pyplot as plt
-#plt.figure()
-#plt.imshow(center_images[0])
-#plt.figure()
-#plt.imshow(flipped_center_images[0])
-
 X_train = np.append(center_images,flipped_center_images,axis=0)
 Y_train = np.append(steering_angles,flipped_steering_angles,axis=0)
-
-
 
 model = NvidiaDriving()
 
@@ -117,7 +110,50 @@ saves the model weights after each epoch if the validation loss decreased
 from keras.callbacks import ModelCheckpoint
 checkpointer = ModelCheckpoint(filepath="model.h5", verbose=1, save_best_only=True)
 
-model.fit(x=X_train,y=Y_train,validation_split=0.1,shuffle=True,nb_epoch=15,callbacks=[checkpointer],batch_size=64)
+model.fit(x=X_train,y=Y_train,validation_split=0.2,shuffle=True,nb_epoch=15,callbacks=[checkpointer],batch_size=64)
+
+#from sklearn.model_selection import train_test_split
+#train_samples, validation_samples = train_test_split(dataAnn, test_size=0.2)
+#
+#def generator(samples, batch_size=32):
+#    num_samples = len(samples)
+#    while 1: # Loop forever so the generator never terminates
+#        shuffle(samples)
+#        for offset in range(0, num_samples, batch_size):
+#            batch_samples = samples[offset:offset+batch_size]
+#
+#            center_images = np.array([cv2.imread(line[0]) for line in batch_samples],dtype=np.float32)
+#            steering_angles = np.array([float(line[3]) for line in batch_samples],dtype=np.float32)
+#            
+#            flipped_center_images = np.array([np.fliplr(img)for img in center_images],dtype=np.float32)
+#            flipped_steering_angles = -steering_angles
+#            
+#            X_train = np.append(center_images,flipped_center_images,axis=0)
+#            Y_train = np.append(steering_angles,flipped_steering_angles,axis=0)
+#
+#            yield sklearn.utils.shuffle(X_train, Y_train)
+#
+#
+## compile and train the model using the generator function
+#train_generator = generator(train_samples, batch_size=32)
+#validation_generator = generator(validation_samples, batch_size=32
+#
+#model = NvidiaDriving()
+#
+#from keras import optimizers
+#adam = optimizers.Adam(lr=0.0001)
+#
+#model.compile(loss='mse',optimizer=adam)
+#
+#'''
+#saves the model weights after each epoch if the validation loss decreased
+#'''
+#from keras.callbacks import ModelCheckpoint
+#checkpointer = ModelCheckpoint(filepath="model.h5", verbose=1, save_best_only=True)
+#
+#model.fit_generator(train_generator, samples_per_epoch= len(train_samples), \
+#                    validation_data=validation_generator, nb_val_samples=len(validation_samples), \
+#                    nb_epoch=15,callbacks=[checkpointer])
 
 #model.save('behavior_cloning_model.h5')
 

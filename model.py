@@ -39,7 +39,7 @@ def LeNet():
     
     return model
     
-def NvidiaDriving():
+def myDriveNet():
     ''' Return NvidiaDriving architecture '''
     model = Sequential()
     
@@ -110,7 +110,7 @@ shuffle(dataAnn)
 #Y_train = np.append(steering_angles,flipped_steering_angles,axis=0)
 #
 ##creating the model architecture
-#model = NvidiaDriving()
+#model = myDriveNet()
 #
 #from keras import optimizers
 #adam = optimizers.Adam(lr=0.0001)
@@ -162,8 +162,9 @@ train_generator = generator(train_samples, batch_size=32)
 validation_generator = generator(validation_samples, batch_size=32)
 
 #creating the model architecture
-model = NvidiaDriving()
+model = myDriveNet()
 
+#dump model graph to disk
 tf.summary.FileWriter('./driveNetGraph',graph=tf.get_default_graph())
 
 from keras import optimizers
